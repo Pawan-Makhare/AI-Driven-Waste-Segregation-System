@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Waste Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f0f0f0, #d9e4f5);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 38px;
+            color: #4CAF50;
+            padding: 20px 0;
+            text-shadow: 2px 2px 4px #999;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Button Styling */
+        button {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 20px auto;
+            padding: 12px;
+            font-size: 18px;
+            color: #fff;
+            background: #4CAF50;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        /* Waste Info Card */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            transition: all 0.3s ease;
+            text-align: center;
+            animation: fadeIn 0.8s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Colors based on waste type */
+        .plastic { background: linear-gradient(135deg, #3498db, #85c1e9); color: #fff; }
+        .paper { background: linear-gradient(135deg, #2ecc71, #58d68d); color: #fff; }
+        .organic { background: linear-gradient(135deg, #8B4513, #D2B48C); color: #fff; }
+        .unidentified { background: linear-gradient(135deg, #7f8c8d, #bdc3c7); color: #fff; }
+
+        /* Icons */
+        .icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .confidence {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        /* Links Styling */
+        .link {
+            display: inline-block;
+            font-size: 16px;
+            color: #fff;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌿 Smart Waste Detection System</h1>
+
+    <button onclick="detectWaste()">Detect Waste</button>
+
+    <div class="grid-container">
+
+        <div id="result" class="info-card unidentified">
+            <i id="waste-icon" class="icon fas fa-recycle"></i>
+            <h2>Detected Waste Type: <span id="waste-type">-</span></h2>
+            <p class="confidence">Confidence: <span id="confidence">0%</span></p>
+        </div>
+
+        <!-- Dynamic Waste Information -->
+        <div class="info-card">
+            <h3>♻️ Recycling Methods
+                <a href="#" id="recycling-link" target="_blank" class="link">🔗 Learn More</a>
+            </h3>
+            <p id="recycling">-</p>
+        </div>
+
+        <div class="info-card">
+            <h3>⚠️ Environmental Impact
+                <a href="#" id="problems-link" target="_blank" class="link">🔗 Learn More</a>
+            </h3>
+            <p id="problems">-</p>
+        </div>
+
+        <div class="info-card">
+            <h3>💡 Reusability Tips
+                <a href="#" id="practices-link" target="_blank" class="link">🔗 Learn More</a>
+            </h3>
+            <p id="practices">-</p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    async function detectWaste() {
+        const response = await fetch('/detect');
+        const data = await response.json();
+
+        // Update displayed information
+        document.getElementById('waste-type').textContent = data.class;
+        document.getElementById('confidence').textContent = data.confidence;
+        document.getElementById('recycling').textContent = data.info.recycling;
+        document.getElementById('problems').textContent = data.info.problems;
+        document.getElementById('practices').textContent = data.info.practices;
+
+        const resultCard = document.getElementById('result');
+        resultCard.classList.remove('plastic', 'paper', 'organic', 'unidentified');
+
+        const wasteIcon = document.getElementById('waste-icon');
+
+        // Set links based on waste type
+        const links = {
+            "Plastic": {
+                "recycling": "https://www.epa.gov/recycle/recycling-plastics",
+                "problems": "https://www.nrdc.org/stories/plastic-pollution",
+                "practices": "https://www.worldwildlife.org/pages/reduce-plastic-waste"
+            },
+            "Paper": {
+                "recycling": "https://www.recyclepaper.org",
+                "problems": "https://www.greenpeace.org/usa/issues/paper-industry/",
+                "practices": "https://earth911.com/recycling-guide/how-to-recycle-paper/"
+            },
+            "Organic": {
+                "recycling": "https://www.epa.gov/recycle/composting-home",
+                "problems": "https://www.niehs.nih.gov/health/topics/agents/organic/",
+                "practices": "https://www.gardeningknowhow.com/special/organic/"
+            }
+        };
+
+        const type = data.class;
+        if (links[type]) {
+            document.getElementById('recycling-link').href = links[type].recycling;
+            document.getElementById('problems-link').href = links[type].problems;
+            document.getElementById('practices-link').href = links[type].practices;
+        }
+    }
+</script>
+
+</body>
+</html>
